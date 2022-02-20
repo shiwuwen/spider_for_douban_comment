@@ -29,7 +29,9 @@ def get_random_headers():
     return headers
 
 def get_user_info_url(file_name):
-
+    '''
+    获取《觉醒年代》评论用户的个人主页 URL
+    '''
     for page_index in range(50):
         # 用于保存用户信息
         user_info_list = []
@@ -66,6 +68,9 @@ def get_user_info_url(file_name):
         time.sleep(3)
 
 def get_user_info(user_url):
+    '''
+    获取个人主页中的内容
+    '''
     # 获取URL内容
     response2 = requests.get(user_url, headers=get_random_headers())
     # 提取网页信息
@@ -77,16 +82,22 @@ def get_user_info(user_url):
     user_name = user_info[0].split(':')[-1]
     # 获取生日
     user_birthday = user_info[3].split(':')[-1]
+
     return user_name, user_birthday
 
 def write_to_txt(info_list, file_name):
-    # 保存到TXT文件
+    '''
+    保存到TXT文件
+    '''
     with open(file_name, 'a+', encoding='utf-8') as f:
         for info in info_list:
             f.write(info)
             f.write('\n')
 
 def validate_date(date_str):
+    '''
+    验证日期是否合法
+    '''
     try:
         time.strptime(date_str, "%Y-%m-%d")
         return True
@@ -94,6 +105,9 @@ def validate_date(date_str):
         return False
 
 def clean_user_info_and_wirte2xls(txt_name, xls_name):
+    '''
+    清洗用户数据
+    '''
     user_dict = {}
     Constellation = ['白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座']
     try:
@@ -107,9 +121,11 @@ def clean_user_info_and_wirte2xls(txt_name, xls_name):
                 break
                 
             user_info = line.strip().split('$^&')
+            # 去除重复用户
             if user_info[0] in user_dict.keys():
                 continue
             user_dict[user_info[0]] = 1
+            # 验证日期是否合法
             if validate_date(user_info[1]): #or user_info[1] in Constellation:
                 for index in range(len(user_info)):
                     sheet.write(x, index, user_info[index])
@@ -123,7 +139,9 @@ def clean_user_info_and_wirte2xls(txt_name, xls_name):
         raise
 
 def get_user_comment_and_info(file_name):
-
+    '''
+    获取用户评论以及个人页信息
+    '''
     for page_index in range(1, 51):
         # 用于保存用户信息
         user_info_list = []
@@ -169,16 +187,16 @@ if __name__ == '__main__':
     txt_name = os.path.join(os.getcwd(), 'weibo_userinfo.txt')
     comment_txt_name = os.path.join(os.getcwd(), 'weibo_comment.txt')
 
-    # 获取微博《觉醒年代》中评论用户的个人信息，包括用户名和生日
+    ## 获取微博《觉醒年代》中评论用户的个人信息，包括用户名和生日
     # get_user_info_url(txt_name)
 
-    # 对用户信息数据进行去重
+    ## 对用户信息数据进行去重
     # xls_name = os.path.join(os.getcwd(), 'weibo_userinfo.xls')
     # clean_user_info_and_wirte2xls(txt_name, xls_name)
 
-    # 获取用户信息以及评论信息
+    ## 获取用户信息以及评论信息
     # get_user_comment_and_info(comment_txt_name)
 
-    # 写xls
+    ## 清洗数据并写入 xls
     comment_xls_name = os.path.join(os.getcwd(), 'weibo_comment.xls')
     clean_user_info_and_wirte2xls(comment_txt_name, comment_xls_name)
